@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Requests\Nomenclaturas\RegistrarRequest;
+use App\Models\VistaNomenclaturas;
 
 class NomenclaturasController extends Controller
 {
@@ -15,7 +16,12 @@ class NomenclaturasController extends Controller
      */
     public function index()
     {
-        //
+        //Mostrar nomenclaturas
+        $nomenclatura = VistaNomenclaturas::all();
+        return response()->json([
+            "ok" =>true,
+            "data" =>$nomenclatura
+        ]);
     }
 
     /**
