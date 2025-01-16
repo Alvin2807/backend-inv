@@ -131,6 +131,14 @@ class SolicitudesController extends Controller
         return $cantidad_pendiente;
     }
 
+    public function editarSolicitud(){
+        try {
+            
+        } catch (\Exception $th) {
+            
+        }
+    }
+
     /**
      * Display the specified resource.
      */
