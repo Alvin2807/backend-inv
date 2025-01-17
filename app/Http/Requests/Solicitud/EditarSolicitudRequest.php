@@ -4,7 +4,7 @@ namespace App\Http\Requests\Solicitud;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreRequest extends FormRequest
+class EditarSolicitudRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,14 +22,16 @@ class StoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'tipo_accion' =>'required|string',
-            'usuario'     =>'required|string',
-            'fk_despacho' =>'required|integer',
+            'fk_despacho'   =>'required|integer',
             'fecha_entrada' =>'required|date',
+            'usuario'       =>'required|string',
+            'fk_solicitud'  =>'required|integer',
             'fk_tipo_solicitud' =>'required|integer',
-            'detalles' =>'sometimes|array|min:1',
+            'detalles'      =>'sometimes|array|min:1',
+            'detalles.*.id_detalle'  =>'nullable|integer',
             'detalles.*.fk_articulo' =>'required|integer',
-            'detalles.*.cantidad_solicitada' =>'required|integer'
+            'detalles.*.cantidad_solicitada' =>'required|integer',
+            'detalles.*.no_item' =>'required|integer'
         ];
     }
 }

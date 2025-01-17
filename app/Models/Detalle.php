@@ -11,7 +11,7 @@ class Detalle extends Model
     public    $table      = 'inv_detalles';
     protected $primarykey = 'id_detalle';
     protected $fillable   = ['id_detalle','fk_tipo_solicitud','fk_articulo','fk_solicitud','cantidad_solicitada','cantidad_pendiente',
-    'cantidad_confirmada','estado'];
+    'cantidad_confirmada','estado','no_item'];
     public $incrementing  = true;
     public $timestamps    = false;
 
@@ -23,7 +23,8 @@ class Detalle extends Model
         'fk_solicitud'      =>'integer',
         'cantidad_solicitada' =>'integer',
         'cantidad_pendiente'  =>'integer',
-        'cantidad_confirmada' =>'integer'
+        'cantidad_confirmada' =>'integer',
+        'no_item'             =>'integer'
 
     ];
 }

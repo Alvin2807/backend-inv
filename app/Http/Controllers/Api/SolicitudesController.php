@@ -8,10 +8,11 @@ use App\Models\VistaSolicitud;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Requests\Solicitud\StoreRequest;
+use App\Http\Requests\Solicitud\EditarSolicitudRequest;
 use App\Models\Articulo;
 use App\Models\Detalle;
 use App\Utils\Utilidades;
-
+use Carbon\Carbon;
 class SolicitudesController extends Controller
 {
     /**
@@ -51,7 +52,6 @@ class SolicitudesController extends Controller
             if ($tipo_accion == 'ENTRADA') {
                 $solicitud = new Solicitud();
                 $solicitud->fk_despacho    = $request->input('fk_despacho');
-                $solicitud->no_entrada     = strtoupper($request->input('no_entrada'));
                 $solicitud->fk_tipo_solicitud = $request->input('fk_tipo_solicitud');
                 $solicitud->fecha_entrada  = Utilidades::formatoFecha($request->input('fecha_entrada'));
                 $solicitud->usuario_crea   = strtoupper($request->input('usuario'));
@@ -60,6 +60,7 @@ class SolicitudesController extends Controller
                 $items = $request->input('detalles');
                 for ($i=0; $i <count($items) ; $i++) { 
                     $detalle = new Detalle();
+                    $detalle->no_item = $items[$i]['no_item'];
                     $detalle->fk_tipo_solicitud =  $solicitud->fk_tipo_solicitud;
                     $detalle->fk_articulo = $items[$i]['fk_articulo'];
                     $detalle->fk_solicitud = $solicitud->id;
@@ -131,12 +132,98 @@ class SolicitudesController extends Controller
         return $cantidad_pendiente;
     }
 
-    public function editarSolicitud(){
+    public function editarSolicitud(EditarSolicitudRequest $request){
         try {
-            
+            DB::beginTransaction();
+            $id_solicitud = $request->input('fk_solicitud');
+            $fk_tipo_solicitud = $request->input('fk_tipo_solicitud');
+            $validar  = Solicitud::
+            where('id_solicitud', $id_solicitud)
+            ->where('estado', 'Pendiente')
+            ->count();
+            if ($validar) {
+                $data['fk_despacho']    = $request->input('fk_despacho');
+                $data['fecha_entrada']  = Utilidades::formatoFecha($request->input('fecha_entrada'));
+                $data['usuario_modifica'] = strtoupper($request->input('usuario'));
+                $data['fecha_modifica']   = Carbon::now()->format('Y-m-d H:i:s');
+                $solicitud = Solicitud::where('id_solicitud', $id_solicitud)->update($data);
+
+                $items = $request->input('detalles');
+                for ($i=0; $i <count($items) ; $i++) { 
+                    if (isset($items[$i]['id_detalle'])) {
+                        $detalle = new Detalle();
+                        $consultarDetalle = Detalle::
+                        select('id_detalle','cantidad_solicitada')
+                        ->where('fk_articulo', $items[$i]['fk_articulo'])
+                        ->where('fk_solicitud', $id_solicitud)
+                        ->get();
+
+                        $detalleData['fk_articulo'] = $items[$i]['fk_articulo'];
+                        $detalleData['cantidad_solicitada'] = $consultarDetalle[0]['cantidad_solicitada'] - $consultarDetalle[0]['cantidad_solicitada'] + $items[$i]['cantidad_solicitada'];
+                        $detalleData['cantidad_pendiente']  = $detalleData['cantidad_solicitada'];
+                        $detalleData['usuario_modifica']    = $data['usuario_modifica'];
+                        $detalleData['fecha_modifica']      = $data['fecha_modifica'];
+                        $detallesSolicitud = Detalle::where('id_detalle', $items[$i]['id_detalle'])->update($detalleData);
+
+                        $dataSolicitudCantidad = new Solicitud();
+                        $dataSolicitud['cantidad_solicitada'] = $this->sumarCantidadSolicitada($id_solicitud);
+                        $dataSolicitud['cantidad_pendiente']  = $this->sumarCantidadPendiente($id_solicitud);
+                        $dataSolicitudCantidad = Solicitud::where('id_solicitud', $id_solicitud)->update($dataSolicitud);
+
+                        $consultarArticuloExite = Articulo::
+                        select('id_articulo','cantidad_pedida')
+                        ->where('id_articulo', $items[$i]['fk_articulo'])
+                        ->get();
+                        if (count($consultarArticuloExite) > 0) {
+                            $actualizarArticuloExite = new Articulo();
+                            $dataArticuloExiste['cantidad_pedida'] = $consultarArticuloExite[0]['cantidad_pedida'] - $consultarDetalle[0]['cantidad_solicitada'] + $items[$i]['cantidad_solicitada'];
+                            $actualizarArticuloExite = Articulo::where('id_articulo', $items[$i]['fk_articulo'])->update($dataArticuloExiste);
+                        } 
+
+                    } else {
+                        $detalleNuevo = new Detalle();
+                        $detalleNuevo->no_item = $items[$i]['no_item'];
+                        $detalleNuevo->fk_tipo_solicitud = $fk_tipo_solicitud;
+                        $detalleNuevo->fk_solicitud = $id_solicitud;
+                        $detalleNuevo->fk_articulo = $items[$i]['fk_articulo'];
+                        $detalleNuevo->cantidad_solicitada = $items[$i]['cantidad_solicitada'];
+                        $detalleNuevo->cantidad_pendiente =  $detalleNuevo->cantidad_solicitada;
+                        $detalleNuevo->usuario_crea = $data['usuario_modifica'];
+                        $detalleNuevo->save();
+
+                        $actualizarCantidad = new Solicitud();
+                        $dataCantidad['cantidad_solicitada'] = $this->sumarCantidadSolicitada($id_solicitud);
+                        $dataCantidad['cantidad_pendiente']  = $this->sumarCantidadPendiente($id_solicitud);
+                        $actualizarCantidad = Solicitud::where('id_solicitud', $id_solicitud)->update($dataCantidad);
+
+                        $consultarArticuloActualizar = Articulo::
+                        select('id_articulo','cantidad_pedida')
+                        ->where('id_articulo', $items[$i]['fk_articulo'])
+                        ->get();
+                        if (count($consultarArticuloActualizar) > 0) {
+                            $actualizarArticuloData = new Articulo();
+                            $dataArticuloCantidad['cantidad_pedida'] =  $consultarArticuloActualizar[0]['cantidad_pedida'] + $items[$i]['cantidad_solicitada'];
+                            $actualizarArticuloData = Articulo::where('id_articulo', $items[$i]['fk_articulo'])->update($dataArticuloCantidad);
+                        }
+                        }
+                }
+
+            DB::commit();
+               return response()->json([
+                "data" =>true,
+                "ok" =>$solicitud,
+                "exitoso" =>'Se guardo satisfactoriamente'
+               ]);
+            }
         } catch (\Exception $th) {
-            
+            DB::rollBack();
+            return response()->json([
+                "ok" =>false,
+                "data"=>$th->getMessage(),
+                "errorRegistro" =>'Hubo un error consulte con el Administrador del sistema'
+            ]);
         }
+
     }
 
     /**
@@ -170,4 +257,9 @@ class SolicitudesController extends Controller
     {
         //
     }
+
+    
+
+
+    
 }

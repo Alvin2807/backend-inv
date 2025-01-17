@@ -10,7 +10,7 @@ class Solicitud extends Model
     use HasFactory;
     public    $table      = 'inv_solicitudes';
     protected $primarykey = 'id_solicitud';
-    protected $fillable   = ['id_solicitud','fk_tipo_solicitud','fk_despacho','no_entrada','fecha_entrada','no_salida',
+    protected $fillable   = ['id_solicitud','fk_tipo_solicitud','fk_despacho','fecha_entrada',
     'incidencia','cantidad_solicitada','cantidad_pendiente','cantidad_confirmada','estado','fecha_salida'];
     public $incrementing = true;
     public $timestamps   = false;
