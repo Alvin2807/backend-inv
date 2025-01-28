@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Requests\Solicitud\StoreRequest;
 use App\Http\Requests\Solicitud\EditarSolicitudRequest;
 use App\Http\Requests\Solicitud\EliminarArticuloRequest;
+use App\Http\Requests\Solicitud\EliminartSolicitudRequest;
 use App\Models\Articulo;
 use App\Models\Detalle;
 use App\Utils\Utilidades;
@@ -32,14 +33,6 @@ class SolicitudesController extends Controller
             "data"=>$solicitud,
             "Pendientes"=>count($solicitud)
         ]);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
     }
 
     /**
@@ -286,37 +279,55 @@ class SolicitudesController extends Controller
         }
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Solicitud $solicitud)
-    {
-        //
+    public function eliminarSolicitud(EliminartSolicitudRequest $request){
+        try {
+           DB::beginTransaction();
+           $id_solicitud = $request->input('id_solicitud');
+           $usuario      = strtoupper($request->input('usuario'));
+           $solicitudes = new Solicitud();
+           $consultaSolicitud = Solicitud::
+           select('id_solicitud','cantidad_confirmada')
+           ->where('id_solicitud',$id_solicitud)
+           ->where('cantidad_confirmada', '>', 0)
+           ->get();
+           if (count($consultaSolicitud) > 0) {
+            return 'No se puede eliminar esta solicitud';
+           } else {
+            $items = $request->input('detalles');
+            for ($i=0; $i <count($items) ; $i++) { 
+                $detalle = new Detalle();
+                $detalle = Detalle::where('id_detalle', $items[$i]['id_detalle'])->delete();
+
+                $solicitud = New Solicitud();
+                $solicitud = Solicitud::where('id_solicitud', $id_solicitud)->delete();
+
+                $articulo = New Articulo();
+                $articuloDataSolicitud['cantidad_pedida']  = $this->sumarCantidadPedidaArticulo($items[$i]['fk_articulo']) - $items[$i]['cantidad_solicitada'];
+                $articuloDataSolicitud['usuario_modifica'] = $usuario;
+                $articuloDataSolicitud['fecha_modifica']   = Carbon::now()->format('Y-m-d H:i:s');
+                $articulo = Articulo::where('id_articulo', $items[$i]['fk_articulo'])->update($articuloDataSolicitud);
+           }
+
+        }
+           DB::commit();
+           return response()->json([
+            "ok" =>true,
+            "data"=>$solicitudes,
+            "eliminarSolicitud" =>'Se eliminó satisfactoriamente'
+        ]);
+
+        } catch (\Exception $th) {
+            DB::rollBack();
+            return response()->json([
+                "ok" =>false,
+                "data"=>$th->getMessage(),
+                "errorEliminarSolicitus" =>'Hubo un error consulte con el Administrador del sistema'
+            ]);
+        }
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Solicitud $solicitud)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Solicitud $solicitud)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Solicitud $solicitud)
-    {
-        //
-    }
+  
+   
 
     
 
