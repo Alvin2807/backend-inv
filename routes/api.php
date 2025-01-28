@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Route;
 */
 Route::post('registrar_usuario', [UserController::class,'registrarUsuario']);
 Route::put('editar_articulo', [ArticulosController::class,'editarArticulo']);
+Route::put('eliminar_articulo_solicitud', [SolicitudesController::class,'eliminarArticuloSolicitud']);
 Route::post('iniciar_sesion',[UserController::class,'iniciar_sesion']);
 Route::put('editar_solicitud',[SolicitudesController::class,'editarSolicitud']);
 Route::apiResource('solicitudes', SolicitudesController::class);

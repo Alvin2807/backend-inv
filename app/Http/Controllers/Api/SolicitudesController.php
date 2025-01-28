@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Requests\Solicitud\StoreRequest;
 use App\Http\Requests\Solicitud\EditarSolicitudRequest;
+use App\Http\Requests\Solicitud\EliminarArticuloRequest;
 use App\Models\Articulo;
 use App\Models\Detalle;
 use App\Utils\Utilidades;
@@ -112,6 +113,16 @@ class SolicitudesController extends Controller
         ->sum('cantidad_solicitada');
         return $cantidad_solicitada;
     }
+
+    public function sumarCantidadPedidaArticulo($id_articulo)
+    {
+        $cantidad_pedida = Articulo::
+        select('id_articulo','cantidad_pedida')
+        ->where('id_articulo', $id_articulo)
+        ->sum('cantidad_pedida');
+        return $cantidad_pedida;
+    }
+
 
     public function sumarCantidadConfirmada($id_solicitud)
     {
@@ -224,6 +235,55 @@ class SolicitudesController extends Controller
             ]);
         }
 
+    }
+
+    public function eliminarArticuloSolicitud(EliminarArticuloRequest $request){
+        try {
+           DB::beginTransaction();
+           $id_detalle    = $request->input('id_detalle');
+           $fk_solicitud  = $request->input('fk_solicitud');
+           $fk_articulo   = $request->input('fk_articulo');
+           $usuario       = strtoupper($request->input('usuario'));
+           $cantidad_solicitada = $request->input('cantidad_solicitada');
+           $consulta   = Detalle::
+           select('id_detalle','fk_articulo','cantidad_solicitada')
+           ->where('id_detalle',  $id_detalle)
+           ->where('fk_articulo', $fk_articulo)
+           ->where('cantidad_confirmada', '>', 0)
+           ->get();
+           if (count($consulta) > 0) {
+             return 'No se puede eliminar este artículo';
+           } else {
+            $detalles = new Detalle();
+            $detalles = Detalle::where('id_detalle',$id_detalle)->delete();
+
+            $solicitudEliminar = new Solicitud();
+            $solicitudData['cantidad_solicitada'] = $this->sumarCantidadSolicitada($fk_solicitud);
+            $solicitudData['cantidad_pendiente']  = $this->sumarCantidadPendiente($fk_solicitud);
+            $solicitudData['usuario_modifica']    = $usuario;
+            $solicitudData['fecha_modifica']      = Carbon::now()->format('Y-m-d H:i:s');
+            $solicitudEliminar = Solicitud::where('id_solicitud', $fk_solicitud)->update($solicitudData);
+
+            $articuloEliminar = new Articulo();
+            $articuloData['cantidad_pedida']  = $this->sumarCantidadPedidaArticulo($fk_articulo) - $cantidad_solicitada;
+            $articuloData['usuario_modifica'] = $usuario;
+            $articuloData['fecha_modifica']   = Carbon::now()->format('Y-m-d H:i:s');
+            $articuloEliminar = Articulo::where('id_articulo', $fk_articulo)->update($articuloData);
+            DB::commit();
+            return response()->json([
+                "ok" =>true,
+                "data"=>$detalles,
+                "eliminadoArticulo" =>'Se eliminó satisfactoriamente'
+            ]);
+           }
+        } catch (\Exception $th) {
+            DB::rollBack();
+            return response()->json([
+                "ok" =>false,
+                "data"=>$th->getMessage(),
+                "errorEliminarArticulo" =>'Hubo un error consulte con el Administrador del sistema'
+            ]);
+        }
     }
 
     /**
