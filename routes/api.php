@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+Route::post('registrar_salida', [SolicitudesController::class, 'registrarSalida']);
 Route::post('registrar_usuario', [UserController::class,'registrarUsuario']);
 Route::put('editar_articulo', [ArticulosController::class,'editarArticulo']);
 Route::put('eliminar_articulo_solicitud', [SolicitudesController::class,'eliminarArticuloSolicitud']);

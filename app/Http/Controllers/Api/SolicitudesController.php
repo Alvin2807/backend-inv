@@ -12,6 +12,7 @@ use App\Http\Requests\Solicitud\EditarSolicitudRequest;
 use App\Http\Requests\Solicitud\EliminarArticuloRequest;
 use App\Http\Requests\Solicitud\EliminartSolicitudRequest;
 use App\Http\Requests\Solicitud\ConfirmarSolicitudRequest;
+use App\Http\Requests\Solicitud\SalidaRegistrarRequest;
 use App\Models\Articulo;
 use App\Models\Detalle;
 use App\Utils\Utilidades;
@@ -404,6 +405,59 @@ class SolicitudesController extends Controller
             ]);
         }
     }
+
+    public function registrarSalida(SalidaRegistrarRequest $request){
+        try {
+            DB::beginTransaction();
+            $usuario = strtoupper($request->input('usuario'));
+            $tipo_accion = strtoupper($request->input('tipo_accion'));
+            if ($tipo_accion === 'SALIDA') {
+                $solicitud = new Solicitud();
+                $solicitud->fk_tipo_solicitud = $request->input('fk_tipo_solicitud');
+                $solicitud->fk_despacho  = $request->input('fk_despacho');
+                $solicitud->fecha_salida = Utilidades::formatoFecha($request->input('fecha_salida'));
+                $solicitud->incidencia   = $request->input('incidencia');
+                $solicitud->usuario_crea = $usuario;
+                $solicitud->save();
+
+                $items = $request->input('detalles');
+                for ($i=0; $i <count($items) ; $i++) { 
+                    $detalle = new Detalle();
+                    $detalle->no_item = $items[$i]['no_item'];
+                    $detalle->fk_tipo_solicitud =  $solicitud->fk_tipo_solicitud;
+                    $detalle->fk_articulo = $items[$i]['fk_articulo'];
+                    $detalle->fk_solicitud = $solicitud->id;
+                    $detalle->cantidad_solicitada = $items[$i]['cantidad_solicitada'];
+                    $detalle->cantidad_pendiente  = $items[$i]['cantidad_solicitada'];
+                    $detalle->usuario_crea = $solicitud->usuario_crea;
+                    $detalle->save();
+
+                    $dataSolicitudCantidad = new Solicitud();
+                    $data['cantidad_solicitada'] = $this->sumarCantidadSolicitada($solicitud->id);
+                    $data['cantidad_confirmada'] = $this->sumarCantidadConfirmada($solicitud->id);
+                    $data['cantidad_pendiente']  = $this->sumarCantidadPendiente($solicitud->id);
+                    $dataAccionCantidad = Solicitud::where('id_solicitud', $solicitud->id)->update($data);
+                }
+
+                DB::commit();
+                return response()->json([
+                    "ok" =>true,
+                    "data"=>$solicitud,
+                    "exitoso" =>'Se guardo satisfactoriamente'
+                ]);
+            }
+    
+        } catch (\Exception $th) {
+            DB::rollBack();
+            return response()->json([
+                "ok" =>false,
+                "data"=>$th->getMessage(),
+                "error" =>'Hubo un error consulte con el Administrador del sistema'
+            ]);
+        }
+    }
+
+    
 
   
    
