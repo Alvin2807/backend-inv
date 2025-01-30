@@ -15,6 +15,7 @@ use App\Http\Requests\Solicitud\ConfirmarSolicitudRequest;
 use App\Http\Requests\Solicitud\SalidaRegistrarRequest;
 use App\Http\Requests\Solicitud\EditarSaalidaRequest;
 use App\Http\Requests\Solicitud\EliminarSalidaRequest;
+use App\Http\Requests\Solicitud\ConfirmarSalidaRequest;
 use App\Models\Articulo;
 use App\Models\Detalle;
 use App\Utils\Utilidades;
@@ -545,6 +546,82 @@ class SolicitudesController extends Controller
                 "data"=>$th->getMessage(),
                 "errorEliminarSolicitud" =>'Hubo un error consulte con el Administrador del sistema'
             ]);
+        }
+    }
+
+    public function confirmarSolicitudSalida(ConfirmarSalidaRequest $request){
+        try {
+           DB::beginTransaction();
+           $id_solicitud = $request->input('id_solicitud');
+           $usuario = strtoupper($request->input('usuario'));
+           $fecha_modifica = Carbon::now()->format('Y-m-d H:i:s');
+           $solicitud = new Solicitud();
+           $consultar = Solicitud::
+           select('id_solicitud','cantidad_pendiente')
+           ->where('id_solicitud', $id_solicitud)
+           ->where('estado', 'Completado')
+           ->get();
+           if (count($consultar) > 0) {
+            return 'No se puede confirmar está solicitud';
+           } else {
+            $items  = $request->input('detalles');
+            for ($i = 0; $i <count($items) ; $i++) { 
+                $detalle = new Detalle();
+                $consultaDetalle = Detalle::
+                select('id_detalle','cantidad_solicitada','fk_solicitud','fk_articulo')
+                ->where('fk_solicitud',$id_solicitud)
+                ->where('fk_articulo', $items[$i]['fk_articulo'])
+                ->get();
+                $detalleData['cantidad_solicitada'] = $items[$i]['cantidad_solicitada'];
+                $detalleData['cantidad_confirmada'] = $items[$i]['cantidad_solicitada'];
+                $detalleData['cantidad_pendiente']  = $consultaDetalle[0]['cantidad_solicitada'] - $detalleData['cantidad_confirmada'];
+                $detalleData['estado'] = 'Completado';
+                $detalleData['usuario_modifica'] = $usuario;
+                $detalleData['fecha_modifica']   = $fecha_modifica;
+                $detalle = Detalle::where('fk_solicitud', $id_solicitud)->update($detalleData);
+
+                $solicitudActualizar = new Solicitud();
+                $solicitudData['cantidad_solicitada'] = $this->sumarCantidadSolicitada($id_solicitud);
+                $solicitudData['cantidad_confirmada'] = $this->sumarCantidadConfirmada($id_solicitud);
+                $solicitudData['cantidad_pendiente']  = $this->sumarCantidadPendiente($id_solicitud);
+                $solicitudData['estado'] = 'Completado';
+                $solicitudData['fecha_modifica'] = $fecha_modifica;
+                $solicitudData['usuario_modifica'] = $usuario;
+                $solicitudActualizar = Solicitud::where('id_solicitud', $id_solicitud)->update($solicitudData);
+
+                $articulo = New Articulo();
+                $consultarStockArticulo = Articulo::
+                select('id_articulo','stock')
+                ->where('id_articulo', $items[$i]['fk_articulo'])
+                ->get();
+                if (count($consultarStockArticulo) > 0) {
+                    if ($consultarStockArticulo[0]['stock'] == 0) {
+                        $articuloDataSolicitud['usuario_modifica'] = $usuario;
+                        $articuloDataSolicitud['fecha_modifica']   = Carbon::now()->format('Y-m-d H:i:s');
+                        $articuloDataSolicitud['stock']  = $consultarStockArticulo[0]['stock'] - $items[$i]['cantidad_solicitada']; 
+                        $articuloDataSolicitud['estado'] = 'Disponible';
+                        $articulo = Articulo::where('id_articulo', $items[$i]['fk_articulo'])->update($articuloDataSolicitud);
+    
+                    } else {
+                        $articuloDataSolicitud['usuario_modifica'] = $usuario;
+                        $articuloDataSolicitud['fecha_modifica']   = Carbon::now()->format('Y-m-d H:i:s');
+                        $articuloDataSolicitud['stock']  = $consultarStockArticulo[0]['stock'] - $items[$i]['cantidad_solicitada']; 
+                        $articuloDataSolicitud['estado'] = 'Agotado';
+                        $articulo = Articulo::where('id_articulo', $items[$i]['fk_articulo'])->update($articuloDataSolicitud);
+                    }
+                    
+                }
+
+                DB::commit();
+                return response()->json([
+                    "ok" =>true,
+                    "data"=>$solicitud,
+                    "confirmado" =>'Se confirmó satisfactoriamente'
+                ]);
+            }
+           }
+        } catch (\Exception $th) {
+            
         }
     }
 

@@ -17,10 +17,13 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-Route::put('eliminar_solicitud_salida', [SolicitudesController::class,'eliminarSalida']);
+
+
 Route::post('registrar_salida', [SolicitudesController::class, 'registrarSalida']);
 Route::post('registrar_usuario', [UserController::class,'registrarUsuario']);
 Route::put('editar_articulo', [ArticulosController::class,'editarArticulo']);
+Route::put('eliminar_solicitud_salida', [SolicitudesController::class,'eliminarSalida']);
+Route::put('confirmar_salida', [SolicitudesController::class,'confirmarSolicitudSalida']);
 Route::put('editar_salida',[SolicitudesController::class,'editarSalida']);
 Route::put('eliminar_articulo_solicitud', [SolicitudesController::class,'eliminarArticuloSolicitud']);
 Route::put('confirmar_solicitud', [SolicitudesController::class,'confirmarSolicitud']);
