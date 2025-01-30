@@ -13,6 +13,7 @@ use App\Http\Requests\Solicitud\EliminarArticuloRequest;
 use App\Http\Requests\Solicitud\EliminartSolicitudRequest;
 use App\Http\Requests\Solicitud\ConfirmarSolicitudRequest;
 use App\Http\Requests\Solicitud\SalidaRegistrarRequest;
+use App\Http\Requests\Solicitud\EditarSaalidaRequest;
 use App\Models\Articulo;
 use App\Models\Detalle;
 use App\Utils\Utilidades;
@@ -454,6 +455,55 @@ class SolicitudesController extends Controller
                 "data"=>$th->getMessage(),
                 "error" =>'Hubo un error consulte con el Administrador del sistema'
             ]);
+        }
+    }
+
+    public function editarSalida(EditarSaalidaRequest $request){
+        try {
+           DB::beginTransaction();
+           $id_solicitud = $request->input('id_solicitud');
+           $fk_tipo_solicitud = $request->input('fk_tipo_solicitud');
+           $solicitud = new Solicitud();
+           $validar  = Solicitud::
+           where('id_solicitud', $id_solicitud)
+           ->where('estado', 'Completado')
+           ->get();
+           if (count($validar) > 0) {
+            return 'No se puede editar esta solicitud';
+           } else {
+            $data['fk_despacho']    = $request->input('fk_despacho');
+            $data['fecha_entrada']  = Utilidades::formatoFecha($request->input('fecha_salida'));
+            $data['incidencia']     = $request->input('incidencia');
+            $data['usuario_modifica'] = strtoupper($request->input('usuario'));
+            $data['fecha_modifica']   = Carbon::now()->format('Y-m-d H:i:s');
+            $solicitud = Solicitud::where('id_solicitud', $id_solicitud)->update($data);
+
+            $items = $request->input('detalles');
+            for ($i=0; $i <count($items) ; $i++) { 
+                $detalle = new Detalle();
+                $consultarDetalle = Detalle::
+                select('id_detalle','cantidad_solicitada')
+                ->where('fk_articulo', $items[$i]['fk_articulo'])
+                ->where('fk_solicitud', $id_solicitud)
+                ->get();
+
+                $detalleData['fk_articulo'] = $items[$i]['fk_articulo'];
+                $detalleData['cantidad_solicitada'] = $consultarDetalle[0]['cantidad_solicitada'] - $consultarDetalle[0]['cantidad_solicitada'] + $items[$i]['cantidad_solicitada'];
+                $detalleData['cantidad_pendiente']  = $detalleData['cantidad_solicitada'];
+                $detalleData['usuario_modifica']    = $data['usuario_modifica'];
+                $detalleData['fecha_modifica']      = $data['fecha_modifica'];
+                $detallesSolicitud = Detalle::where('id_detalle', $items[$i]['id_detalle'])->update($detalleData);
+            }
+
+            DB::commit();
+            return response()->json([
+             "data" =>true,
+             "ok" =>$solicitud,
+             "exitoso" =>'Se guardo satisfactoriamente'
+            ]);
+           }
+        } catch (\Exception $th) {
+            
         }
     }
 

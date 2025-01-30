@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Route;
 Route::post('registrar_salida', [SolicitudesController::class, 'registrarSalida']);
 Route::post('registrar_usuario', [UserController::class,'registrarUsuario']);
 Route::put('editar_articulo', [ArticulosController::class,'editarArticulo']);
+Route::put('editar_salida',[SolicitudesController::class,'editarSalida']);
 Route::put('eliminar_articulo_solicitud', [SolicitudesController::class,'eliminarArticuloSolicitud']);
 Route::put('confirmar_solicitud', [SolicitudesController::class,'confirmarSolicitud']);
 Route::put('eliminar_solicitud', [SolicitudesController::class,'eliminarSolicitud']);
