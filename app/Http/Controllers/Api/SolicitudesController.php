@@ -14,6 +14,7 @@ use App\Http\Requests\Solicitud\EliminartSolicitudRequest;
 use App\Http\Requests\Solicitud\ConfirmarSolicitudRequest;
 use App\Http\Requests\Solicitud\SalidaRegistrarRequest;
 use App\Http\Requests\Solicitud\EditarSaalidaRequest;
+use App\Http\Requests\Solicitud\EliminarSalidaRequest;
 use App\Models\Articulo;
 use App\Models\Detalle;
 use App\Utils\Utilidades;
@@ -337,7 +338,7 @@ class SolicitudesController extends Controller
             return response()->json([
                 "ok" =>false,
                 "data"=>$th->getMessage(),
-                "errorEliminarSolicitus" =>'Hubo un error consulte con el Administrador del sistema'
+                "errorEliminarSolicitud" =>'Hubo un error consulte con el Administrador del sistema'
             ]);
         }
     }
@@ -504,6 +505,46 @@ class SolicitudesController extends Controller
            }
         } catch (\Exception $th) {
             
+        }
+    }
+
+    public function eliminarSalida(EliminarSalidaRequest $request) {
+        try {
+            DB::beginTransaction();
+            $usuario = strtoupper($request->input('usuario'));
+            $id_solicitud = $request->input('id_solicitud');
+            $solicitudes = new Solicitud();
+            $consultaSolicitud = Solicitud::
+            select('id_solicitud','cantidad_confirmada')
+            ->where('id_solicitud',$id_solicitud)
+            ->where('cantidad_confirmada', '>', 0)
+            ->get();
+            if (count($consultaSolicitud) > 0) {
+                return 'No se puede eliminar esta solicitud';
+            } else {
+                $items = $request->input('detalles');
+                for ($i=0; $i <count($items) ; $i++) { 
+                    $detalle = new Detalle();
+                    $detalle = Detalle::where('id_detalle', $items[$i]['id_detalle'])->delete();
+                    $solicitud = New Solicitud();
+                    $solicitud = Solicitud::where('id_solicitud', $id_solicitud)->delete();
+                    DB::commit();
+                    return response()->json([
+                     "ok" =>true,
+                     "data"=>$solicitudes,
+                     "eliminarSolicitud" =>'Se eliminó satisfactoriamente'
+                 ]);
+
+                }
+            }
+            
+        } catch (\Exception $th) {
+            DB::rollBack();
+            return response()->json([
+                "ok" =>false,
+                "data"=>$th->getMessage(),
+                "errorEliminarSolicitud" =>'Hubo un error consulte con el Administrador del sistema'
+            ]);
         }
     }
 
