@@ -1,9 +1,14 @@
 <?php
 
 use App\Http\Controllers\Api\ArticulosController;
+use App\Http\Controllers\Api\CategoriasController;
+use App\Http\Controllers\Api\ColoresController;
+use App\Http\Controllers\Api\MarcasController;
+use App\Http\Controllers\Api\ModelosController;
 use App\Http\Controllers\Api\NomenclaturasController;
 use App\Http\Controllers\Api\SolicitudesController;
 use App\Http\Controllers\Api\UserController;
+use App\Models\Categoria;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -30,9 +35,14 @@ Route::put('confirmar_solicitud', [SolicitudesController::class,'confirmarSolici
 Route::put('eliminar_solicitud', [SolicitudesController::class,'eliminarSolicitud']);
 Route::post('iniciar_sesion',[UserController::class,'iniciar_sesion']);
 Route::put('editar_solicitud',[SolicitudesController::class,'editarSolicitud']);
+Route::get('mostrar_perfil_usuarios', [UserController::class,'mostrarPerfil']);
+Route::get('select_modelo_marca/{id_marca}', [ModelosController::class,'mostrarModeloMarca']);
 Route::apiResource('solicitudes', SolicitudesController::class);
+Route::apiResource('colores', ColoresController::class);
+Route::apiResource('marcas', MarcasController::class);
 Route::apiResource('nomenclaturas', NomenclaturasController::class);
 Route::apiResource('articulos', ArticulosController::class);
+Route::apiResource('categorias', CategoriasController::class);
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });

@@ -18,7 +18,11 @@ class ArticulosController extends Controller
     public function index()
     {
         //Mostrar articulos
-        $articulo = VistaArticulos::all();
+        $articulo = VistaArticulos::
+        select('id_articulo','codigo','referencia','marca','categoria','modelo','color','fk_marca','fk_modelo',
+        'fk_categoria','fk_color','cantidad_pedida','stock','estado')
+        ->orderBy('id_articulo', 'desc')
+        ->get();
         return response()->json([
             "ok"=>true,
             "data"=>$articulo
@@ -37,8 +41,7 @@ class ArticulosController extends Controller
             $id_articulo = (int)$request->input('id_articulo');
             $consulta  = Articulo::
             select('id_articulo','codigo')
-            ->where('codigo', $codigo)
-            ->where('id_articulo', '<>', $id_articulo)
+            ->where('codigo', $codigo)->where('id_articulo', '<>', $id_articulo)
             ->get();
             if (count($consulta) > 0) {
                 return response()->json([
@@ -88,7 +91,7 @@ class ArticulosController extends Controller
             ->get();
             if (count($consulta) > 0) {
              return response()->json([
-                 "ok" =>true,
+                "ok"=>false,
                  "existeArticulo" =>'Ya existe un artículo con el código '.$codigo
              ]);
             } else {

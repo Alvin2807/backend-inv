@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Http\Requests\User\RegistrarRequest;
 use App\Http\Requests\User\IniciarSesionRequest;
+use App\Models\VistaPerfil;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
@@ -123,5 +124,13 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         //
+    }
+
+    public function mostrarPerfil(){
+        $user = VistaPerfil::all();
+        return response()->json([
+            "ok"=>true,
+            "data"=>$user
+        ]);
     }
 }
