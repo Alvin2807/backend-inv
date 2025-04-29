@@ -18,6 +18,8 @@ use App\Http\Requests\Solicitud\EliminarSalidaRequest;
 use App\Http\Requests\Solicitud\ConfirmarSalidaRequest;
 use App\Models\Articulo;
 use App\Models\Detalle;
+use App\Models\VistaArticulosEntrada;
+use App\Models\VistaDetalle;
 use App\Utils\Utilidades;
 use Carbon\Carbon;
 
@@ -32,7 +34,7 @@ class SolicitudesController extends Controller
     {
         //Mostrar solicitudes pendientes
         $solicitud = VistaSolicitud::
-        select('id_solicitud','fk_tipo_solicitud','tipo_solicitud','fk_despacho','no_entrada','fecha_entrada','no_salida','fecha_salida',
+        select('id_solicitud','fk_tipo_solicitud','tipo_solicitud','fk_despacho','fecha_entrada','fecha_salida',
         'incidencia','cantidad_solicitada','cantidad_pendiente','cantidad_confirmada','despacho','estado')
         ->where('estado','Pendiente')
         ->get();
@@ -55,11 +57,13 @@ class SolicitudesController extends Controller
                 $solicitud = new Solicitud();
                 $solicitud->fk_despacho    = $request->input('fk_despacho');
                 $solicitud->fk_tipo_solicitud = $request->input('fk_tipo_solicitud');
+                $solicitud->preparado_por = strtoupper($request->input('preparado_por'));
+                $solicitud->num_solicitud = $request->input('num_solicitud');
                 $solicitud->fecha_entrada  = Utilidades::formatoFecha($request->input('fecha_entrada'));
                 $solicitud->usuario_crea   = strtoupper($request->input('usuario'));
                 $solicitud->save();
 
-                $items = $request->input('detalles');
+                $items = $request->input('articulos');
                 for ($i=0; $i <count($items) ; $i++) { 
                     $detalle = new Detalle();
                     $detalle->no_item = $items[$i]['no_item'];
@@ -157,7 +161,7 @@ class SolicitudesController extends Controller
     public function editarSolicitud(EditarSolicitudRequest $request){
         try {
             DB::beginTransaction();
-            $id_solicitud = $request->input('fk_solicitud');
+            $id_solicitud = $request->input('id_solicitud');
             $fk_tipo_solicitud = $request->input('fk_tipo_solicitud');
             $validar  = Solicitud::
             where('id_solicitud', $id_solicitud)
@@ -167,10 +171,11 @@ class SolicitudesController extends Controller
                 $data['fk_despacho']    = $request->input('fk_despacho');
                 $data['fecha_entrada']  = Utilidades::formatoFecha($request->input('fecha_entrada'));
                 $data['usuario_modifica'] = strtoupper($request->input('usuario'));
+                $data['num_solicitud'] = $request->input('num_solicitud');
                 $data['fecha_modifica']   = Carbon::now()->format('Y-m-d H:i:s');
                 $solicitud = Solicitud::where('id_solicitud', $id_solicitud)->update($data);
 
-                $items = $request->input('detalles');
+                $items = $request->input('articulos');
                 for ($i=0; $i <count($items) ; $i++) { 
                     if (isset($items[$i]['id_detalle'])) {
                         $detalle = new Detalle();
@@ -623,6 +628,45 @@ class SolicitudesController extends Controller
         } catch (\Exception $th) {
             
         }
+    }
+
+    public function contarSolicitudesEntrada(){
+        $solicitud = VistaSolicitud::
+        select('id_solicitud')
+        ->get();
+        return response()->json([
+            "ok"=>true,
+            "data"=>$solicitud->count()
+        ]);
+    }
+
+    public function mostrarDetalleSolicitud($id_solicitud){
+        $solicitud = VistaSolicitud::
+        select('id_solicitud','tipo_solicitud','fk_despacho','despacho','fecha_entrada','fecha_salida','incidencia','cantidad_solicitada','preparado_por','estado','num_solicitud','fk_tipo_solicitud')                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
+        ->where('id_solicitud', $id_solicitud)
+        ->where('estado', 'Pendiente')
+        ->first(); 
+
+        $detalleArticulos = VistaDetalle::
+        select('id_detalle','no_item','fk_tipo_solicitud','fk_articulo','fk_solicitud','codigo','referencia','categoria','marca','modelo','color','cantidad_solicitada')
+        ->where('fk_solicitud', $id_solicitud)
+        ->where('estado', 'Pendiente')
+        ->orderBy('id_detalle', 'asc')
+        ->get();
+
+        $solicitud->articulos = $detalleArticulos;
+        return response()->json([
+            "ok"=>true,
+            "data"=>$solicitud
+        ]);
+    }
+
+    public function mostrarArticulosDisponiblesEntrada(){
+        $solicitud = VistaArticulosEntrada::all();
+        return response()->json([
+            "ok"=>true,
+            "data"=>$solicitud
+        ]);
     }
 
     

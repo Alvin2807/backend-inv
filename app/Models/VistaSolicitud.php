@@ -9,8 +9,8 @@ class VistaSolicitud extends Model
 {
     use HasFactory;
     public    $table    = 'vista_solicitudes';
-    protected $fillable = ['id_solicitud','fk_tipo_solicitud','tipo_solicitud','fk_despacho','no_entrada','no_salida','fecha_salida',
-    'incidencia','cantidad_solicitada','cantidad_pendiente','cantidad_confirmada','despacho','estado'];
+    protected $fillable = ['id_solicitud','fk_tipo_solicitud','tipo_solicitud','fk_despacho','fecha_salida',
+    'incidencia','cantidad_solicitada','cantidad_pendiente','cantidad_confirmada','despacho','estado','num_solicitud','preparado_por'];
 
     protected $casts = 
     [

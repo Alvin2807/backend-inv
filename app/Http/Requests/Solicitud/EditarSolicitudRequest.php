@@ -24,14 +24,16 @@ class EditarSolicitudRequest extends FormRequest
         return [
             'fk_despacho'   =>'required|integer',
             'fecha_entrada' =>'required|date',
+            'id_solicitud'  =>'required|integer',
+            'preparado_por' =>'required|string',
             'usuario'       =>'required|string',
-            'fk_solicitud'  =>'required|integer',
+            'num_solicitud' =>'required|string',
             'fk_tipo_solicitud' =>'required|integer',
-            'detalles'      =>'sometimes|array|min:1',
-            'detalles.*.id_detalle'  =>'nullable|integer',
-            'detalles.*.fk_articulo' =>'required|integer',
-            'detalles.*.cantidad_solicitada' =>'required|integer',
-            'detalles.*.no_item' =>'required|integer'
+            'articulos'    =>'sometimes|array|min:1',
+            'articulos.*.id_detalle' =>'nullable|integer',
+            'articulos.*.fk_articulo' =>'required|integer',
+            'articulos.*.cantidad_solicitada' =>'required|integer',
+            'articulos.*.no_item' =>'required|integer'
         ];
     }
 }

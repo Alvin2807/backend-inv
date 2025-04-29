@@ -1,19 +1,25 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
-use App\Models\Color;
+use App\Models\TipoSolicitud;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
-class ColoresController extends Controller
+class TipoSolicitudController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        //
+        //Mostrar tipo solicitudes
+        $tipoSolicitud = TipoSolicitud::all();
+        return response()->json([
+            "ok"=>true,
+            "data"=>$tipoSolicitud
+        ]);
+       
     }
 
     /**
@@ -35,7 +41,7 @@ class ColoresController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Color $color)
+    public function show(TipoSolicitud $tipoSolicitud)
     {
         //
     }
@@ -43,7 +49,7 @@ class ColoresController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Color $color)
+    public function edit(TipoSolicitud $tipoSolicitud)
     {
         //
     }
@@ -51,7 +57,7 @@ class ColoresController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Color $color)
+    public function update(Request $request, TipoSolicitud $tipoSolicitud)
     {
         //
     }
@@ -59,7 +65,7 @@ class ColoresController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Color $color)
+    public function destroy(TipoSolicitud $tipoSolicitud)
     {
         //
     }

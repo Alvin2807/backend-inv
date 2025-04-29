@@ -26,6 +26,8 @@ class StoreRequest extends FormRequest
             'usuario'     =>'required|string',
             'fk_despacho' =>'required|integer',
             'fecha_entrada' =>'required|date',
+            'num_solicitud' =>'required|string',
+            'preparado_por' =>'required|string',
             'fk_tipo_solicitud' =>'required|integer',
             'detalles' =>'sometimes|array|min:1',
             'detalles.*.fk_articulo' =>'required|integer',
