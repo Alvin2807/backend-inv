@@ -24,10 +24,15 @@ class ConfirmarSolicitudRequest extends FormRequest
         return [
             'id_solicitud' =>'required|integer',
             'usuario'      =>'required|string',
-            'detalles'     =>'sometimes|array|min:1',
-            'detalles.*.id_detalle'  =>'required|integer',
-            'detalles.*.fk_articulo' =>'required|integer',
-            'detalles.*.cantidad_solicitada' =>'required|integer'
+            'fk_tipo_solicitud' =>'required|integer',
+            'fk_despacho' =>'required|integer',
+            'fecha_entrada' =>'required|date',
+            'num_solicitud' =>'required|string',
+            'preparado_por' =>'required|string',
+           /*  'articulos'     =>'sometimes|array|min:1',
+            'articulos.*.id_detalle'  =>'required|integer',
+            'articulos.*.fk_articulo' =>'required|integer',
+            'articulos.*.cantidad_solicitada' =>'required|integer' */
         ];
     }
 }

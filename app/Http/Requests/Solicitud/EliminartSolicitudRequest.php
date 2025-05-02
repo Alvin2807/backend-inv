@@ -24,10 +24,10 @@ class EliminartSolicitudRequest extends FormRequest
         return [
             'id_solicitud' =>'required|integer',
             'usuario'      =>'required|string',
-            'detalles'     =>'sometimes|array|min:1',
-            'detalles.*.fk_articulo' =>'required|integer',
-            'detalles.*.id_detalle'  =>'required|integer',
-            'detalles.*.cantidad_solicitada' =>'required|integer'
+            'articulos'     =>'sometimes|array|min:1',
+            'articulos.*.fk_articulo' =>'required|integer',
+            'articulos.*.fk_solicitud'  =>'required|integer',
+            'articulos.*.cantidad_solicitada' =>'required|integer'
         ];
     }
 }
