@@ -10,7 +10,7 @@ class VistaDetalle extends Model
     use HasFactory;
     public    $table = 'vista_detalles';
     protected $fillable = ['id_detalle','fk_tipo_solicitud','fk_articulo','fk_solicitud','codigo','referencia','categoria','marca',
-    'modelo','cantidad_solicitada','cantidad_pendiente','cantidad_confirmada','estado'];
+    'modelo','cantidad_solicitada','cantidad_pendiente','cantidad_confirmada','estado','fk_nomenclatura','nomenclatura'];
 
     protected $casts = 
     [
@@ -20,6 +20,7 @@ class VistaDetalle extends Model
         'fk_solicitud'      =>'integer',
         'cantidad_solicitada' =>'integer',
         'cantidad_pendiente'  =>'integer',
-        'cantidad_confirmada' =>'integer'
+        'cantidad_confirmada' =>'integer',
+        'fk_nomenclatura'     =>'integer'
     ];
 }

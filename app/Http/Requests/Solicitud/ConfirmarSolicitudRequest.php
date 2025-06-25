@@ -25,14 +25,17 @@ class ConfirmarSolicitudRequest extends FormRequest
             'id_solicitud' =>'required|integer',
             'usuario'      =>'required|string',
             'fk_tipo_solicitud' =>'required|integer',
+            'fk_tipo_entrada' =>'required|integer',
             'fk_despacho' =>'required|integer',
-            'fecha_entrada' =>'required|date',
             'num_solicitud' =>'required|string',
-            'preparado_por' =>'required|string',
-           /*  'articulos'     =>'sometimes|array|min:1',
+            'mes'=>'required|string',
+            'fecha_entrada' =>'required|date',
+            'entregado_por' =>'required|string',
+            'articulos'     =>'sometimes|array|min:1',
             'articulos.*.id_detalle'  =>'required|integer',
+            'articulos.*.no_item'  =>'required|integer',
             'articulos.*.fk_articulo' =>'required|integer',
-            'articulos.*.cantidad_solicitada' =>'required|integer' */
+            'articulos.*.cantidad_solicitada' =>'required|integer'
         ];
     }
 }

@@ -11,7 +11,8 @@ class Articulo extends Model
 
     public    $table      = "inv_articulos";
     protected $primarykey = "id_articulo";
-    protected $fillable   = ['id_articulo','fk_marca','fk_modelo','fk_categoria','fk_color','stock','cantidad_pedida','estado'];
+    protected $fillable   = ['id_articulo','fk_marca','fk_modelo','fk_categoria','fk_color','stock','cantidad_pedida',
+    'estado','tiene_detalle','cantidad_entrada','cantidad_salida'];
     public    $incrementing = true;
     public    $timestamps   = false;
 
@@ -23,6 +24,8 @@ class Articulo extends Model
         'fk_categoria' =>'integer',
         'fk_color'     =>'integer',
         'stock'        =>'integer',
-        'cantidad_pedida' =>'integer'
+        'cantidad_pedida' =>'integer',
+        'cantidad_entrada'=>'integer',
+        'cantidad_salida'=>'integer',
     ];
 }

@@ -74,4 +74,15 @@ class DespachosController extends Controller
             "data"=>$vistaDespachos
         ]);
     }
+
+    public function DespachoAlmacen(){
+        $vistaDespachos = VistaDespachos::
+        select('id_despacho','despacho')
+        ->where('despacho','UNIDAD DE ALMACÉN')
+         ->first(); 
+         return response()->json([
+            "ok"=>true,
+            "data"=>$vistaDespachos
+         ]);
+    }
 }

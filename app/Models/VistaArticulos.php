@@ -10,7 +10,7 @@ class VistaArticulos extends Model
     use HasFactory;
     public    $table    = "vista_articulos";
     protected $fillable = ['id_articulo','codigo','referencia','marca','categoria','modelo','color','fk_marca','fk_modelo',
-    'fk_categoria','fk_color','cantidad_pedida','stock'];
+    'fk_categoria','fk_color','cantidad_pedida','stock','tiene_detalle'];
     protected $casts = 
     [
         'id_articulo'  =>'integer',
@@ -19,6 +19,6 @@ class VistaArticulos extends Model
         'fk_categoria' =>'integer',
         'fk_color'     =>'integer',
         'cantidad_pedida' =>'integer',
-        'stock' =>'integer'
+        'stock' =>'integer',
     ];
 }

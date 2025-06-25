@@ -10,8 +10,8 @@ class Detalle extends Model
     use HasFactory;
     public    $table      = 'inv_detalles';
     protected $primarykey = 'id_detalle';
-    protected $fillable   = ['id_detalle','fk_tipo_solicitud','fk_articulo','fk_solicitud','cantidad_solicitada','cantidad_pendiente',
-    'cantidad_confirmada','estado','no_item'];
+    protected $fillable   = ['id_detalle','fk_tipo_solicitud','fk_articulo','fk_solicitud','cantidad_solicitada','cantidad_pendiente','fk_nomenclatura',
+    'cantidad_confirmada','estado','no_item','mes'];
     public $incrementing  = true;
     public $timestamps    = false;
 
@@ -24,7 +24,8 @@ class Detalle extends Model
         'cantidad_solicitada' =>'integer',
         'cantidad_pendiente'  =>'integer',
         'cantidad_confirmada' =>'integer',
-        'no_item'             =>'integer'
+        'no_item'             =>'integer',
+        'fk_nomenclatura'     =>'integer'
 
     ];
 }

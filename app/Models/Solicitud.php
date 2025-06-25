@@ -11,7 +11,7 @@ class Solicitud extends Model
     public    $table      = 'inv_solicitudes';
     protected $primarykey = 'id_solicitud';
     protected $fillable   = ['id_solicitud','fk_tipo_solicitud','fk_despacho','fecha_entrada',
-    'incidencia','cantidad_solicitada','cantidad_pendiente','cantidad_confirmada','estado','fecha_salida','num_solicitud','preparado_por'];
+    'incidencia','cantidad_solicitada','cantidad_pendiente','cantidad_confirmada','estado','fecha_salida','num_solicitud','preparado_por','fk_tipo_entrada'];
     public $incrementing = true;
     public $timestamps   = false;
 
@@ -20,6 +20,7 @@ class Solicitud extends Model
         'id_solicitud'     =>'integer',
         'fk_tipo_solicitud'=>'integer',
         'fk_despacho'      =>'integer',
+        'fk_tipo_entrada'  =>'integer',
         'fecha_entrada'    =>'datetime:Y-m-d',
         'fecha_salida'     =>'datetime:Y-m-d',
         'cantidad_solicitada' =>'integer',

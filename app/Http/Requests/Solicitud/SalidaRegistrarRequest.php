@@ -28,10 +28,11 @@ class SalidaRegistrarRequest extends FormRequest
             'fecha_salida' =>'required|date',
             'fk_tipo_solicitud' =>'required|integer',
             'incidencia' =>'required|integer',
-            'detalles' =>'sometimes|array|min:1',
-            'detalles.*.fk_articulo' =>'required|integer',
-            'detalles.*.cantidad_solicitada' =>'required|integer',
-            'detalles.*.no_item' =>'required|integer'
+            'articulos' =>'sometimes|array|min:1',
+            'articulos.*.fk_articulo' =>'required|integer',
+            'articulos.*.cantidad_solicitada' =>'required|integer',
+            'articulos.*.no_item' =>'required|integer',
+            'articulos.*.fk_nomenclatura' =>'required|integer',
         ];
     }
 }
