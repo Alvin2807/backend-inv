@@ -20,7 +20,7 @@ class ArticulosController extends Controller
         //Mostrar articulos
         $articulo = VistaArticulos::
         select('id_articulo','codigo','referencia','marca','categoria','modelo','color','fk_marca','fk_modelo',
-        'fk_categoria','fk_color','cantidad_pedida','stock','estado')
+        'fk_categoria','fk_color','cantidad_pedida','stock','estado','tiene_historial')
         ->orderBy('id_articulo', 'desc')
         ->get();
         return response()->json([

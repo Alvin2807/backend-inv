@@ -37,6 +37,7 @@ Route::put('eliminar_articulo_solicitud', [SolicitudesController::class,'elimina
 Route::put('confirmar_solicitud', [SolicitudesController::class,'confirmarSolicitud']);
 Route::put('eliminar_solicitud', [SolicitudesController::class,'eliminarSolicitud']);
 Route::post('iniciar_sesion',[UserController::class,'iniciar_sesion']);
+Route::post('verificar_existe_num_solicitud',[SolicitudesController::class,'mostrarNumeroSolicitudExisteRegistro']);
 Route::put('editar_solicitud',[SolicitudesController::class,'editarSolicitud']);
 Route::get('mostrar_perfil_usuarios', [UserController::class,'mostrarPerfil']);
 Route::get('select_modelo_marca/{id_marca}', [ModelosController::class,'mostrarModeloMarca']);

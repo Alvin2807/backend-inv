@@ -12,7 +12,7 @@ class Articulo extends Model
     public    $table      = "inv_articulos";
     protected $primarykey = "id_articulo";
     protected $fillable   = ['id_articulo','fk_marca','fk_modelo','fk_categoria','fk_color','stock','cantidad_pedida',
-    'estado','tiene_detalle','cantidad_entrada','cantidad_salida'];
+    'estado','tiene_detalle','cantidad_entrada','cantidad_salida','tiene_historial'];
     public    $incrementing = true;
     public    $timestamps   = false;
 
