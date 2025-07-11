@@ -53,6 +53,8 @@ Route::get('detalle_de_entrada_articulo/{id_articulo}', [SolicitudesController::
 Route::get('meses_entrada/{id_articulo}',[SolicitudesController::class,'vistaMesesEntada']);
 Route::get('meses_articulos_entradas/{id_articulo}',[SolicitudesController::class,'VistaMesEntradaXArticulos']);
 Route::get('detalle_entrada_de_articulo_x_mes_x_fecha/{id_articulo}',[SolicitudesController::class,'DetalleEntradaxArticuloxMes']);
+Route::get('mostrar_solicitud_entradas', [SolicitudesController::class,'mostarSolicitudEntrada']);
+Route::get('detalle_de_entrada/{id_solicitud}', [SolicitudesController::class,'mostrarDetalleEntrada']);
 Route::apiResource('solicitudes', SolicitudesController::class);
 Route::apiResource('tipo_solicitudes', TipoSolicitudController::class);
 Route::apiResource('colores', ColoresController::class);

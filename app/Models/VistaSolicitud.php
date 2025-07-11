@@ -19,7 +19,7 @@ class VistaSolicitud extends Model
         'fk_tipo_solicitud'=>'integer',
         'fk_despacho'      =>'integer',
         'fk_tipo_entrada'  =>'integer',
-        'fecha_entrada'    =>'datetime:Y-m-d',
+        'fecha_entrada'    =>'datetime:d/m/Y',
         'fecha_salida'     =>'datetime:d/m/Y',
         'cantidad_solicitada' =>'integer',
         'cantidad_pendiente'  =>'integer',

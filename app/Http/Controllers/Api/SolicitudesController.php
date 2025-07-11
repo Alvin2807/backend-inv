@@ -924,6 +924,41 @@ class SolicitudesController extends Controller
         
     }
 
+    public function mostarSolicitudEntrada(){
+        $solicitud = VistaSolicitud::
+        select('id_solicitud','fecha_entrada','tipo_solicitud','tipo_entrada','entregado_por','num_solicitud','despacho','cantidad_confirmada')
+        ->where('tipo_solicitud', 'ENTRADA')
+        ->where('estado', 'Completado')
+        ->orderBy('fecha_entrada', 'desc')
+        ->get();
+        return response()->json([
+            "ok"=>true,
+            "data"=>$solicitud
+        ]);
+    }
+
+      public function mostrarDetalleEntrada($id_solicitud){
+        $solicitud = VistaSolicitud::
+        select('id_solicitud','tipo_solicitud','fk_despacho','despacho','fecha_entrada','fecha_salida','incidencia','cantidad_solicitada','entregado_por','estado','fk_tipo_solicitud',
+        'fk_tipo_entrada','tipo_entrada','num_solicitud')                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
+        ->where('id_solicitud', $id_solicitud)
+        ->where('estado', 'Completado')
+        ->first(); 
+
+        $detalleArticulos = VistaDetalle::
+        select('id_detalle','no_item','fk_tipo_solicitud','fk_articulo','fk_solicitud','codigo','referencia','categoria','marca','modelo','color','cantidad_solicitada')
+        ->where('fk_solicitud', $id_solicitud)
+        ->where('estado', 'Completado')
+        ->orderBy('id_detalle', 'asc')
+        ->get();
+
+        $solicitud->articulos = $detalleArticulos;
+        return response()->json([
+            "ok"=>true,
+            "data"=>$solicitud
+        ]);
+    }
+
 
 
 
